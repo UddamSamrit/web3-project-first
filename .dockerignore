@@ -1,0 +1,16 @@
+node_modules
+cache
+artifacts
+.env
+coverage
+coverage.json
+typechain
+typechain-types
+.hardhat
+*.log
+.git
+.gitignore
+README.md
+HOW-TO-*.md
+EXPLANATION.md
+

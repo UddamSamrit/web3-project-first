@@ -1,0 +1,45 @@
+services:
+  # Hardhat Node - Local Blockchain
+  hardhat-node:
+    build: .
+    container_name: web3-hardhat-node
+    command: npm run node
+    ports:
+      - "8545:8545"  # JSON-RPC endpoint
+    volumes:
+      - ./contracts:/app/contracts
+      - ./scripts:/app/scripts
+      - ./cache:/app/cache
+      - ./artifacts:/app/artifacts
+    networks:
+      - web3-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').request({hostname:'localhost',port:8545,method:'POST',headers:{'Content-Type':'application/json'}}, (r) => {let d=''; r.on('data',c=>d+=c); r.on('end',()=>process.exit(r.statusCode===200?0:1))}).on('error',()=>process.exit(1)).end(JSON.stringify({jsonrpc:'2.0',method:'eth_blockNumber',params:[],id:1}))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+
+  # Web App Server
+  web-app:
+    build: .
+    container_name: web3-web-app
+    command: npm start
+    ports:
+      - "3045:3000"  # Web interface (mapped to 3045 to avoid conflicts)
+    volumes:
+      - ./public:/app/public
+      - ./server.js:/app/server.js
+    depends_on:
+      hardhat-node:
+        condition: service_healthy
+    networks:
+      - web3-network
+    environment:
+      - NODE_ENV=development
+      - HARDHAT_NODE_URL=http://hardhat-node:8545
+
+networks:
+  web3-network:
+    driver: bridge
+

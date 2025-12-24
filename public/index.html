@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 Transaction App - Real Wallet Experience</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .wallet-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .wallet-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .wallet-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-box label {
+            display: block;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box .value {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            word-break: break-all;
+        }
+
+        .balance {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .transaction-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+            display: block;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            color: #0c5460;
+            display: block;
+        }
+
+        .transaction-history {
+            margin-top: 30px;
+        }
+
+        .transaction-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-item .tx-hash {
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #667eea;
+            word-break: break-all;
+        }
+
+        .transaction-item .tx-amount {
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .network-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #28a745;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Web3 Transaction App</h1>
+        <p class="subtitle">Real Wallet Experience - Connect & Send Transactions</p>
+
+        <!-- Wallet Connection Section -->
+        <div class="wallet-section">
+            <h2>🔗 Wallet Connection</h2>
+            <div class="wallet-info">
+                <div class="info-box">
+                    <label>Network</label>
+                    <div class="value">
+                        Hardhat Local
+                        <span class="network-badge" id="chainId">Chain ID: 1337</span>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <label>Status</label>
+                    <div class="value" id="connectionStatus">Not Connected</div>
+                </div>
+            </div>
+            <div class="wallet-info">
+                <div class="info-box">
+                    <label>Your Address</label>
+                    <div class="value" id="userAddress">-</div>
+                </div>
+                <div class="info-box">
+                    <label>Balance</label>
+                    <div class="value balance" id="userBalance">0 ETH</div>
+                </div>
+            </div>
+            <button class="btn" id="connectBtn" onclick="connectWallet()">
+                Connect Wallet
+            </button>
+            <button class="btn btn-secondary" id="disconnectBtn" onclick="disconnectWallet()" style="display: none;">
+                Disconnect
+            </button>
+        </div>
+
+        <!-- Transaction Section -->
+        <div class="transaction-section">
+            <h2>💸 Send Transaction</h2>
+            <div style="background: #e7f3ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #2196F3;">
+                <strong>📤 How to Send:</strong>
+                <ol style="margin: 10px 0 0 20px; padding: 0;">
+                    <li>Enter recipient address below</li>
+                    <li>Enter amount in ETH</li>
+                    <li>Click "Send Transaction"</li>
+                </ol>
+            </div>
+            <div class="form-group">
+                <label>Recipient Address</label>
+                <input type="text" id="recipientAddress" placeholder="0x70997970C51812dc3A010C7d01b50e0d17dc79C8" />
+                <small style="color: #666; font-size: 0.85em; margin-top: 5px; display: block;">
+                    💡 Tip: Use Account #1 from Hardhat node: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+                </small>
+            </div>
+            <div class="form-group">
+                <label>Amount (ETH)</label>
+                <input type="number" id="amount" placeholder="0.1" step="0.001" min="0" />
+            </div>
+            <button class="btn btn-success" id="sendBtn" onclick="sendTransaction()" disabled>
+                Send Transaction
+            </button>
+            <div class="status" id="status"></div>
+        </div>
+
+        <!-- Receive Section -->
+        <div class="transaction-section" style="background: #f0f9ff; border-color: #2196F3;">
+            <h2>📥 How to Receive ETH</h2>
+            <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <strong>Your Address (Share this to receive ETH):</strong>
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-top: 10px; font-family: monospace; word-break: break-all; font-size: 0.9em;" id="receiveAddress">
+                    Connect wallet to see your address
+                </div>
+                <button class="btn btn-secondary" onclick="copyAddress()" style="margin-top: 10px; width: auto; padding: 8px 20px;" id="copyBtn">
+                    📋 Copy Address
+                </button>
+            </div>
+            <div style="background: #e7f3ff; padding: 15px; border-radius: 10px; border-left: 4px solid #2196F3;">
+                <strong>📥 How Receiving Works:</strong>
+                <ul style="margin: 10px 0 0 20px; padding: 0;">
+                    <li>Share your address above with the sender</li>
+                    <li>When they send ETH to your address, you receive it automatically</li>
+                    <li>Your balance updates automatically - no action needed!</li>
+                    <li>Check "Transaction History" below to see incoming transactions</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SimpleStorage Contract Section -->
+        <div class="transaction-section" style="background: #fff3cd; border-color: #ffc107;">
+            <h2>💾 SimpleStorage Contract</h2>
+            <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <div class="form-group">
+                    <label>Contract Address</label>
+                    <input type="text" id="contractAddress" placeholder="0x5FbDB2315678afecb367f032d93F642f64180aa3" />
+                    <small style="color: #666; font-size: 0.85em; margin-top: 5px; display: block;">
+                        💡 Default: 0x5FbDB2315678afecb367f032d93F642f64180aa3 (deploy first if needed)
+                    </small>
+                </div>
+                <button class="btn btn-secondary" onclick="connectToContract()" style="margin-bottom: 15px;">
+                    Connect to Contract
+                </button>
+            </div>
+            <div id="contractInfo" style="display: none;">
+                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <div class="info-box" style="margin-bottom: 15px;">
+                        <label>Current Stored Value</label>
+                        <div class="value" id="storedValue">-</div>
+                    </div>
+                    <div class="info-box" style="margin-bottom: 15px;">
+                        <label>Contract Owner</label>
+                        <div class="value" id="contractOwner">-</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Store New Value</label>
+                    <input type="number" id="storageValue" placeholder="42" step="1" min="0" />
+                </div>
+                <button class="btn btn-success" id="storeBtn" onclick="storeValue()" disabled>
+                    Store Value
+                </button>
+                <button class="btn btn-secondary" onclick="refreshStoredValue()" style="margin-top: 10px;">
+                    🔄 Refresh Value
+                </button>
+                <div class="status" id="storageStatus"></div>
+            </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="transaction-history">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0;">📜 Transaction History</h2>
+                <button class="btn btn-secondary" onclick="refreshTransactions()" style="width: auto; padding: 8px 20px; margin: 0;">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div id="txHistory">
+                <p style="color: #666; text-align: center; padding: 20px;">
+                    No transactions yet. Send your first transaction!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Wait for ethers to load before loading app.js
+        if (typeof ethers === 'undefined') {
+            console.error('Ethers.js failed to load. Please check your internet connection or CDN availability.');
+        } else {
+            console.log('Ethers.js loaded successfully');
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
+

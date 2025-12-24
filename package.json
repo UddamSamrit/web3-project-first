@@ -1,0 +1,53 @@
+{
+  "name": "web3-testing-project",
+  "version": "1.0.0",
+  "description": "Web3 testing project with Hardhat and Jest",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "test:jest": "jest",
+    "compile": "hardhat compile",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:all": "hardhat run scripts/deploy-all.js --network localhost",
+    "playground": "hardhat run scripts/playground.js --network localhost",
+    "test:connection": "hardhat run scripts/test-connection.js --network localhost",
+    "interact": "hardhat run scripts/interact-contract.js --network localhost",
+    "debug:jsonrpc": "node scripts/debug-jsonrpc.js",
+    "diagnose:jsonrpc": "node scripts/diagnose-jsonrpc.js",
+    "tx:step-by-step": "hardhat run scripts/send-transaction-step-by-step.js",
+    "tx:simple": "hardhat run scripts/send-transaction-simple.js",
+    "tx:advanced": "hardhat run scripts/send-transaction-advanced.js",
+    "app": "node server.js",
+    "start": "node server.js",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:logs": "docker-compose logs -f",
+    "docker:playground": "./scripts/docker-playground.sh",
+    "docker:deploy": "docker-compose exec hardhat-node npm run deploy:all",
+    "docker:compile": "docker-compose exec hardhat-node npm run compile"
+  },
+  "keywords": [
+    "web3",
+    "blockchain",
+    "testing",
+    "ethereum"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@types/jest": "^29.5.0",
+    "hardhat": "^2.19.0",
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "ethers": "^6.9.0"
+  }
+}
+
