@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run Hardhat tests
+echo "🧪 Running tests..."
+npm run test || {
+  echo "❌ Tests failed! Commit aborted."
+  exit 1
+}
+
+# Compile contracts to ensure they're valid
+echo "📦 Compiling contracts..."
+npm run compile || {
+  echo "❌ Contract compilation failed! Commit aborted."
+  exit 1
+}
+
+echo "✅ All pre-commit checks passed!"

@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-push checks..."
+
+# Prevent pushing directly to main
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+if [ "$branch" = "main" ]; then
+  echo "❌ Direct pushes to 'main' branch are not allowed!"
+  echo "💡 Please create a pull request instead."
+  exit 1
+fi
+
+echo "✅ Pre-push checks passed!"

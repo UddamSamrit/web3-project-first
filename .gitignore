@@ -16,3 +16,6 @@ typechain-types/
 # Docker
 .docker/
 
+# Husky (keep hooks, ignore internal files)
+.husky/_
+
