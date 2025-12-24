@@ -4,8 +4,16 @@ echo "🔍 Running pre-push checks..."
 branch="$(git rev-parse --abbrev-ref HEAD)"
 
 if [ "$branch" = "main" ]; then
+  # Check if user wants to bypass (for owners/admins)
+  if [ "$SKIP_PRE_PUSH" = "1" ]; then
+    echo "⚠️  Owner bypass enabled - pushing to main (use with caution!)"
+    exit 0
+  fi
+  
   echo "❌ Direct pushes to 'main' branch are not allowed!"
   echo "💡 Please create a pull request instead."
+  echo ""
+  echo "💡 Owner bypass: SKIP_PRE_PUSH=1 git push (use with caution!)"
   exit 1
 fi
 
